@@ -4,38 +4,122 @@
     <meta charset="UTF-8">
     <title>心理辅导助手</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        #chatBox { margin-top: 20px; }
-        .user { color: blue; }
-        .ai { color: green; }
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+
+        .bubble {
+            padding: 10px 15px;
+            margin: 8px;
+            border-radius: 15px;
+            max-width: 75%;
+            line-height: 1.4;
+            clear: both;
+        }
+
+        .user {
+            background-color: #dcf8c6;
+            float: right;
+            text-align: right;
+        }
+
+        .ai {
+            background-color: #f1f0f0;
+            float: left;
+            text-align: left;
+        }
+
+        .input-box {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <h1>心理辅导助手</h1>
-    <input type="text" id="userInput" placeholder="请输入你的问题..." size="50"/>
-    <button onclick="sendMessage()">发送</button>
 
-    <div id="chatBox"></div>
+<div class="container">
+    <div class="header">心理辅导助手</div>
+    <div class="chat-box" id="chatBox">
+        <div style="text-align:center; color:gray;">欢迎使用心理辅导机器人</div>
+    </div>
+    <div class="input-box">
+        <input type="text" id="userInput" placeholder="请输入您的问题..." />
+        <button onclick="sendMessage()">发送</button>
+    </div>
+</div>
 
-    <script>
-        async function sendMessage() {
-            let message = document.getElementById('userInput').value;
-            if (!message.trim()) return;
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({message})
-            });
-            const data = await response.json();
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML += `<p class="user"><strong>你:</strong> ${message}</p>`;
-            if(data.reply){
-                chatBox.innerHTML += `<p class="ai"><strong>AI:</strong> ${data.reply}</p>`;
-            } else {
-                chatBox.innerHTML += `<p class="ai"><strong>错误:</strong> ${data.error}</p>`;
-            }
-            document.getElementById('userInput').value = '';
-        }
-    </script>
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        const chatBox = document.getElementById('chatBox');
+        chatBox.innerHTML += `<div class="bubble user">${message}</div>`;
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message})
+        });
+
+        const data = await response.json();
+        const reply = data.reply || data.error || '出错了，请稍后再试。';
+        chatBox.innerHTML += `<div class="bubble ai">${reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+
 </body>
 </html>
